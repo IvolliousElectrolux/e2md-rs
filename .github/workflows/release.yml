@@ -1,0 +1,99 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@nightly
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Build (Windows)
+        run: cargo build --release
+
+      - name: Package
+        shell: pwsh
+        run: |
+          $version = (Select-String -Path Cargo.toml -Pattern '^version = "(.+)"').Matches[0].Groups[1].Value
+          Copy-Item "target/release/e2md-rs.exe" "e2md-rs-v${version}-windows-x86_64.exe"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: e2md-rs-v*-windows-x86_64.exe
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@nightly
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            clang \
+            cmake \
+            libasound2-dev \
+            libfontconfig-dev \
+            libfreetype6-dev \
+            libglib2.0-dev \
+            libssl-dev \
+            libva-dev \
+            libvulkan-dev \
+            libwayland-dev \
+            libx11-dev \
+            libxcb-randr0-dev \
+            libxcb-shape0-dev \
+            libxcb-xfixes0-dev \
+            libxcb1-dev \
+            libxkbcommon-dev \
+            libxkbcommon-x11-dev \
+            libzstd-dev \
+            lld \
+            pkg-config \
+            xdg-desktop-portal \
+            libpipewire-0.3-dev
+
+      - name: Build (Linux)
+        run: cargo build --release
+
+      - name: Package
+        run: |
+          version=$(grep '^version = ' Cargo.toml | head -1 | cut -d'"' -f2)
+          cp target/release/e2md-rs "e2md-rs-v${version}-linux-x86_64"
+          chmod +x "e2md-rs-v${version}-linux-x86_64"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: e2md-rs-v*-linux-x86_64
+
+  release:
+    needs: [build-windows, build-linux]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: artifacts/*
