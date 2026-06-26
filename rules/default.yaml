@@ -1,0 +1,23 @@
+Name: "通用排版修复"
+Description: "单阶段通用清洗: 修复 MinerU 输出的排版问题, 不改动公式"
+Stages:
+  - Name: "排版修复"
+    Provider: "OpenRouter"
+    Model: "google/gemma-4-31b-it:free"
+    Prompt: |
+      你是一个专业的 Markdown 文档排版助手。
+      你的任务是修复以下从 PDF 转换而来的 Markdown 文档中的格式问题:
+      1. 修复不必要的换行 (例如段落中间被错误截断的行)
+      2. 合并被拆散的句子
+      3. 修复错误的标题级别
+      4. 保持数学公式不变 (LaTeX 格式)
+      5. 保持图片链接不变
+      6. 不要新增内容, 不要删除任何信息
+      
+      直接输出修复后的 Markdown 内容, 不要解释。
+      
+      {{CONTENT}}
+    MaxTokens: 8192
+ChunkStrategy:
+  Type: "MaxTokens"
+  Size: 3000

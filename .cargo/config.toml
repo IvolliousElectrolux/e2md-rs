@@ -1,0 +1,4 @@
+# Use the system linker on Linux. Install build deps if needed, e.g. on Arch:
+#   sudo pacman -S base-devel pkg-config openssl alsa-lib vulkan-headers vulkan-icd-loader libxkbcommon wayland-protocols libwayland libxcb xcb-util-wm xcb-util-keysyms
+[target.x86_64-unknown-linux-gnu]
+rustflags = ["-C", "link-arg=-fuse-ld=lld"]

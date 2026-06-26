@@ -1,0 +1,31 @@
+Name: "理科公式专用"
+Description: "两阶段清洗: 排版修复 + LaTeX 公式校对"
+Stages:
+  - Name: "排版修复"
+    Provider: "OpenRouter"
+    Model: "google/gemma-4-31b-it:free"
+    Prompt: |
+      你是排版助手。请修复以下 Markdown 文档的排版格式问题。
+      重要: 不要改动任何 LaTeX 公式 ($ 或 $$ 包裹的内容)。
+      直接输出修复后的内容。
+      
+      {{CONTENT}}
+    MaxTokens: 8192
+  - Name: "公式校对"
+    Provider: "OpenRouter"
+    Model: "google/gemma-4-31b-it:free"
+    EnableThinking: false
+    Prompt: |
+      你是数学专家。请检查以下 Markdown 文档中的 LaTeX 公式:
+      1. 确保行内公式使用 $...$ 格式
+      2. 确保块级公式使用 $$...$$ 格式
+      3. 修复明显的公式语法错误
+      4. 确保 Obsidian 可以正确渲染
+      
+      直接输出修复后的内容, 不要解释。
+      
+      {{CONTENT}}
+    MaxTokens: 8192
+ChunkStrategy:
+  Type: "MarkdownHeading"
+  Size: 1500
