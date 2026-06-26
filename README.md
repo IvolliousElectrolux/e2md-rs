@@ -52,7 +52,7 @@
 
 ```bash
 sudo pacman -S base-devel pkg-config openssl alsa-lib vulkan-headers vulkan-icd-loader \
-  libxkbcommon wayland-protocols libwayland libxcb xcb-util-wm xcb-util-keysums
+  libxkbcommon wayland-protocols libwayland libxcb xcb-util-wm xcb-util-keysyms
 ```
 
 ### 构建与运行
